@@ -117,10 +117,10 @@ Do not edit implementation code as part of this skill. If code changes are neede
 
 ## Commit
 
-If committing is requested, stage only the plan-related files and skill metadata needed for this task, then commit with:
+Unless the user asked not to commit, stage only the plan-related files and skill metadata needed for this task, then commit with:
 
 ```text
-sdd-plan: <concise summary>
+plan: <concise summary>
 ```
 
-If committing is not requested, leave the working tree edited and report changed files plus any remaining open questions.
+If committing is declined, leave the working tree edited and report changed files plus any remaining open questions.

@@ -104,10 +104,10 @@ Do not edit implementation code as part of this skill. If code changes are neede
 
 ## Commit
 
-If committing is requested, stage only the specification-related files and commit with:
+Unless the user asked not to commit, stage only the specification-related files and commit with:
 
 ```text
-sdd-specify: <concise summary>
+specify: <concise summary>
 ```
 
-If committing is not requested, leave the working tree edited and report changed files plus any remaining open questions.
+If committing is declined, leave the working tree edited and report changed files plus any remaining open questions.

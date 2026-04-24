@@ -54,18 +54,21 @@ Use this ordered checklist as the work prompt:
 
 Prefer agent-team orchestration when the environment supports it. Otherwise, use plain sequential subagents. In both cases, run the workflow in order: implementer first, reviewer second. Do not run the implementer and reviewer in parallel.
 
+Before falling back to plain subagents, check whether team tools (e.g. `TeamCreate`, `SendMessage`) are deferred rather than absent. If they appear in the harness's deferred-tool list, load them via `ToolSearch` and take the orchestrated path.
+
 ### Orchestrated agent team
 
 Use this path when the environment has a team orchestration layer with teammate messaging, task assignment, and team cleanup.
 
-1. Create one team for the SDD implementation task.
-2. Add two teammates: an implementer and a reviewer.
-3. Assign the prepared work prompt to the implementer.
-4. Wait for the implementer to finish and summarize changes, verification, and risks.
-5. Assign the completed work to the reviewer.
-6. Send reviewer findings back to the implementer for fixes when needed.
-7. Repeat the implementer -> reviewer loop until the reviewer approves or a blocker needs user input.
-8. Clean up the team after the work is committed or explicitly paused.
+1. Create the team with `TeamCreate`.
+2. Spawn two team agents with the `Agent` tool: an implementer and a reviewer.
+3. Create tasks with `TaskCreate` for the work described in the work prompt.
+4. Assign the implementation tasks to the implementer.
+5. Wait for the implementer to finish and summarize changes, verification, and risks.
+6. Hand the completed work to the reviewer as a review task.
+7. Send reviewer findings back to the implementer for fixes when needed.
+8. Repeat the implementer -> reviewer loop until the reviewer approves or a blocker needs user input.
+9. Clean up the team after the work is committed or explicitly paused.
 
 ### Plain subagents
 
