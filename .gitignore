@@ -23,3 +23,6 @@ yarn-error.log*
 .env.local
 
 # NOTE: code/ is tracked — it is the regeneratable build output, not a build cache.
+
+# Claude
+.claude/scheduled_tasks.lock
