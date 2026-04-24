@@ -52,35 +52,62 @@ Use this ordered checklist as the work prompt:
 
 ## Sequential Agent Workflow
 
-Prefer agent-team orchestration when the environment supports it. Otherwise, use plain sequential subagents. In both cases, run the workflow in order: implementer first, reviewer second. Do not run the implementer and reviewer in parallel.
+Run the workflow in order: implementer first, reviewer second. 
+Two delegation paths exist — **orchestrated agent team** and **plain subagents**. 
+Do not perform the implementer and reviewer roles yourself; the separation is the point of this workflow.
 
-Before falling back to plain subagents, check whether team tools (e.g. `TeamCreate`, `SendMessage`) are deferred rather than absent. If they appear in the harness's deferred-tool list, load them via `ToolSearch` and take the orchestrated path.
+### Preflight: choose the delegation path
+
+Before any editing or delegation, complete this check:
+
+1. Scan the harness's deferred-tool list for `TeamCreate` and `SendMessage`.
+2. If both are present, load their schemas via `ToolSearch` and use the **Orchestrated agent team** path.
+3. Otherwise, use the **Plain subagents** path.
+4. State the chosen path in one user-visible line before delegating: `Delegation path: orchestrated` or `Delegation path: plain subagents`.
+
+Task size is never a reason to skip this check. A small task still goes through one of the two paths.
 
 ### Orchestrated agent team
 
-Use this path when the environment has a team orchestration layer with teammate messaging, task assignment, and team cleanup.
+Use when `TeamCreate` and `SendMessage` appear in the deferred-tool list.
 
 1. Create the team with `TeamCreate`.
-2. Spawn two team agents with the `Agent` tool: an implementer and a reviewer.
-3. Create tasks with `TaskCreate` for the work described in the work prompt.
-4. Assign the implementation tasks to the implementer.
-5. Wait for the implementer to finish and summarize changes, verification, and risks.
-6. Hand the completed work to the reviewer as a review task.
-7. Send reviewer findings back to the implementer for fixes when needed.
-8. Repeat the implementer -> reviewer loop until the reviewer approves or a blocker needs user input.
-9. Clean up the team after the work is committed or explicitly paused.
+2. Spawn two team agents with the `Agent` tool: an implementer and a reviewer. Pass `team_name` and a unique `name` so they are addressable.
+3. Create tasks for the work described in the work prompt and assign them to the implementer.
+4. Wait for the implementer to finish and summarize changes, verification, and risks.
+5. Hand the completed work to the reviewer via `SendMessage`.
+6. Relay reviewer findings back to the implementer via `SendMessage` when fixes are needed.
+7. Repeat the implementer -> reviewer loop until the reviewer approves or a blocker needs user input.
+8. Clean up the team with `TeamDelete` after the work is committed or explicitly paused.
+
+Example invocation skeleton (adjust names, types, and prompts to the task and current tool surface):
+
+```text
+TeamCreate({ name: "sdd-phase-N" })
+Agent({ team_name: "sdd-phase-N", name: "implementer",
+        subagent_type: "general-purpose",
+        description: "SDD implementer",
+        prompt: "<full work prompt: specs, plan file, acceptance checks>" })
+Agent({ team_name: "sdd-phase-N", name: "reviewer",
+        subagent_type: "general-purpose",
+        description: "SDD reviewer",
+        prompt: "You are the reviewer. Wait for handoff, then review against spec." })
+# after implementer returns its summary:
+SendMessage({ to: "reviewer",
+              message: "Review these changes: <changed files + implementer summary>" })
+# iterate via SendMessage until the reviewer approves, then:
+TeamDelete({ name: "sdd-phase-N" })
+```
 
 ### Plain subagents
 
-Use this path when the environment supports one-off delegated agents but not team orchestration.
+Use when `TeamCreate` and `SendMessage` are not in the deferred-tool list.
 
 1. Create or invoke an implementer subagent with the prepared work prompt.
 2. Wait for the implementer to finish and summarize changes, verification, and risks.
 3. Create or invoke a reviewer subagent with the work prompt, changed files, and implementer summary.
-4. If the reviewer finds blocking issues, send the findings back to the implementer or perform the fix locally, then ask the reviewer for another pass.
+4. If the reviewer finds blocking issues, send the findings back to the implementer (or perform the fix locally), then ask the reviewer for another pass.
 5. Repeat until the reviewer approves or a blocker needs user input.
-
-If neither team orchestration nor plain subagents are available, perform the same two roles yourself in sequence and clearly label the implementation and review passes.
 
 ### Agent 1: Implementer
 
