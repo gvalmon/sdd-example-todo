@@ -1,0 +1,4 @@
+interface:
+  display_name: "SDD Plan"
+  short_description: "Create and improve SDD plans"
+  default_prompt: "Use $sdd-plan to create or improve SDD plan files from specs, user input, or existing code."
