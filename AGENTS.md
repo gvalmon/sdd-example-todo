@@ -39,10 +39,11 @@ Every phase follows the same four-step habit:
 
 The source skills live in `skills/`. Codex discovers them through `.agents/skills/` symlinks:
 
+- `$sdd-specify` - create or improve `spec/` from user input or existing code.
 - `$sdd-implement` - implement an SDD task or next phase.
 - `$sdd-canonize` - promote durable lessons from code or documentation changes into `spec/` and `plan/`.
 
-Use these skills when the user explicitly invokes them or asks to follow the SDD implementation/canonization workflow.
+Use these skills when the user explicitly invokes them or asks to follow the SDD specification, implementation, or canonization workflow.
 
 ## Non-Goals Of This Example
 
