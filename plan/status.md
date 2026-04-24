@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-**Pre-Phase-1.** No application code written yet. `code/` does not exist; it will be created when Phase 1 starts.
+**Phase 1 complete.** `code/` contains the in-memory MVP: add / toggle / edit / delete / filter / clear-completed. State intentionally resets on refresh until Phase 2 adds persistence.
 
 ## Stack
 
@@ -13,9 +13,15 @@
 
 ## Architecture Decisions
 
-None formalized yet. The first concrete decisions land with Phase 1 (module layout, id strategy, render approach) and are captured in `phase-1-mvp.md`.
+- Phase 1 ships as three static browser siblings plus CSS: `code/index.html`, `code/app.js`, `code/state.js`, and `code/styles.css`. There is no build step, package manager, or server.
+- `code/state.js` is the pure list-state boundary. It exports `add`, `toggle`, `toggleAll`, `editTitle`, `remove`, `clearCompleted`, `setFilter`, and `visibleTodos` on `globalThis.todoState`; it owns immutable state transitions and active-count recalculation. Classic scripts are used so `code/index.html` works when opened directly from disk.
+- `code/app.js` owns the single in-memory `state` variable, DOM event delegation, browser-generated ids/timestamps for new todos, and full re-rendering after mutations.
+- Todo ids use `crypto.randomUUID()` at the app boundary. Created todos store ISO 8601 timestamps.
+- Filter mode lives in state, not the URL. Changing filters does not mutate the todo list.
+- Edit mode is in-place: double-click a title to swap it for an input; Enter and blur commit; Escape cancels.
+- Empty-state copy explicitly names the Phase 1 persistence gap and should be removed or revised when Phase 2 lands.
 
-Design direction: minimal, legible code. The SDD point of this repo is that someone can open any `code/` file, compare it to the relevant `.spec.md`, and trace the mapping without a framework's abstractions in the way.
+Design direction remains minimal, legible code. The SDD point of this repo is that someone can open any `code/` file, compare it to the relevant `.spec.md`, and trace the mapping without a framework's abstractions in the way.
 
 ## Art Direction
 
@@ -30,7 +36,7 @@ System fonts, minimal chrome, one-column layout. Respects `prefers-color-scheme`
     draft       — scoped but not yet started
 -->
 
-- [`phase-1-mvp.md`](./phase-1-mvp.md) — in-memory MVP: add / toggle / edit / delete / filter / clear-completed. **draft, next up.**
+- [`phase-1-mvp.md`](./phase-1-mvp.md) — in-memory MVP: add / toggle / edit / delete / filter / clear-completed. **done.**
 - [`phase-2-persistence.md`](./phase-2-persistence.md) — localStorage; list + filter survive reload. **draft.**
 - [`phase-3-polish.md`](./phase-3-polish.md) — keyboard completeness, bulk toggle-all, a11y pass, empty states. **draft.**
 

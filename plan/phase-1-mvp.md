@@ -1,6 +1,6 @@
 # Phase 1 — In-Memory MVP
 
-**Status**: Not started
+**Status**: Done
 **Specs**: SPEC-001-TODO-MODEL (Todo Model), SPEC-002-LIST-MANAGEMENT (List Management), SPEC-004-INTERFACE (User Interface)
 
 ## Goal
