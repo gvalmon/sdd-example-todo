@@ -24,9 +24,49 @@ can reason about.
 
 **You lose the quality.**
 
+### Option C: Make intent durable
+
+Vibe coding keeps intent in prompts, chat history, and short-term memory. SDD
+moves intent into artifacts the model can reuse: requirements, behaviors,
+contracts, and acceptance criteria.
+
+## What Is Spec-Driven Development?
+
+SDD moves intent into durable artifacts the model can reuse.
+
+### 01. Spec-first
+
+Write the spec before the implementation.
+
+### 02. Spec-anchored
+
+Keep the spec alive as the system evolves.
+
+### 03. Spec-as-source
+
+Treat the spec as canon; regenerate code from it.
+
+## What Is Spec-Steered Development?
+
+Spec-Steered Development is a lightweight, code-tolerant adaptation of SDD.
+
+The spec remains canon, but discovery does not always start in the spec.
+Sometimes you need to try the behavior first: run the app, feel the UX, patch
+the bug.
+
+### Start here: code-first experimentation
+
+Skip the spec when you need to feel the behavior. Prototype, patch, probe:
+off-spec on purpose.
+
+### Then canonize: promote the learning into the spec
+
+When the result proves useful, the learning graduates back into canon. The spec
+stays the source of truth.
+
 ## Three Artifacts, Staying in Sync
 
-Spec is stable. Plan is iterative. Code is regeneratable.
+Spec is canonical. Plan is iterative. Code is regeneratable.
 
 ### 01 - You + Model, Iterated
 
