@@ -1,0 +1,4 @@
+interface:
+  display_name: "SDD Canonize"
+  short_description: "Canonize changes into SDD specs and plans"
+  default_prompt: "Use $sdd-canonize to promote durable implementation lessons back into SDD spec and plan files."

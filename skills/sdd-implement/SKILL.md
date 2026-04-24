@@ -1,6 +1,6 @@
 ---
 name: sdd-implement
-description: Implement an SDD task or next phase with a sequential implementer and reviewer workflow.
+description: Implement Spec-Driven Development (SDD) work from spec/ and plan/ files. Use when the user invokes $sdd-implement, asks to implement the next SDD phase, requests next-phase/adhoc/manual/refactor SDD work, or wants a sequential implementer and reviewer workflow.
 ---
 
 # SDD Implement

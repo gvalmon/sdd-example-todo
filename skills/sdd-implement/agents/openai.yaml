@@ -1,0 +1,4 @@
+interface:
+  display_name: "SDD Implement"
+  short_description: "Implement SDD phases and ad-hoc tasks"
+  default_prompt: "Use $sdd-implement to implement the next SDD phase or a specific SDD task from spec and plan files."

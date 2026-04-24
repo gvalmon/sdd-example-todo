@@ -1,6 +1,6 @@
 ---
 name: sdd-canonize
-description: Canonize lessons from manual implementation or documentation changes back into SDD spec/ and plan/ files.
+description: Canonize lessons from manual implementation or documentation changes back into SDD spec/ and plan/ files. Use when the user invokes $sdd-canonize, asks to canonize ad-hoc fixes, inspect manual commits, or update SDD specs/plans from recent code changes.
 ---
 
 # SDD Canonize
