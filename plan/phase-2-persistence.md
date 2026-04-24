@@ -1,6 +1,6 @@
 # Phase 2 — localStorage Persistence
 
-**Status**: Not started
+**Status**: Done
 **Specs**: SPEC-003-PERSISTENCE (Persistence)
 
 ## Goal

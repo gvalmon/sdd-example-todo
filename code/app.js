@@ -2,19 +2,23 @@ const {
   add,
   clearCompleted,
   editTitle,
-  initialState,
   remove,
   setFilter,
   toggle,
   visibleTodos,
 } = window.todoState;
 
-let state = initialState;
+const { load: loadStorage, save: saveStorage } = window.todoStorage;
+
+const loaded = loadStorage();
+let state = loaded.state;
 let editingId = null;
+let storageNotice = loaded.error;
 
 const inputRegion = document.querySelector("#todo-input");
 const listRegion = document.querySelector("#todo-list");
 const footerRegion = document.querySelector("#todo-footer");
+const noticeRegion = document.querySelector("#storage-notice");
 
 renderInput();
 render();
@@ -33,10 +37,8 @@ inputRegion.addEventListener("keydown", (event) => {
   });
 
   if (nextState !== state) {
-    state = nextState;
     event.target.value = "";
-    editingId = null;
-    render();
+    commitState(nextState);
   }
 
   document.querySelector("#new-todo").focus();
@@ -45,17 +47,13 @@ inputRegion.addEventListener("keydown", (event) => {
 listRegion.addEventListener("click", (event) => {
   const toggleButton = event.target.closest(".todo-toggle");
   if (toggleButton) {
-    state = toggle(state, toggleButton.dataset.todoId, { now: currentTimestamp() });
-    editingId = null;
-    render();
+    commitState(toggle(state, toggleButton.dataset.todoId, { now: currentTimestamp() }));
     return;
   }
 
   const deleteButton = event.target.closest(".todo-delete");
   if (deleteButton) {
-    state = remove(state, deleteButton.dataset.todoId);
-    editingId = null;
-    render();
+    commitState(remove(state, deleteButton.dataset.todoId));
   }
 });
 
@@ -105,22 +103,39 @@ listRegion.addEventListener(
 footerRegion.addEventListener("click", (event) => {
   const filterButton = event.target.closest(".filter-btn");
   if (filterButton) {
-    state = setFilter(state, filterButton.dataset.filter);
-    editingId = null;
-    render();
+    commitState(setFilter(state, filterButton.dataset.filter));
     return;
   }
 
   if (event.target.closest("#clear-completed")) {
-    state = clearCompleted(state);
-    editingId = null;
-    render();
+    commitState(clearCompleted(state));
   }
 });
 
+function commitState(nextState) {
+  if (nextState !== state) {
+    state = nextState;
+    const { error } = saveStorage(state);
+    storageNotice = error;
+  }
+  editingId = null;
+  render();
+}
+
 function render() {
+  renderNotice();
   renderList();
   renderFooter();
+}
+
+function renderNotice() {
+  if (storageNotice) {
+    noticeRegion.textContent = storageNotice;
+    noticeRegion.hidden = false;
+  } else {
+    noticeRegion.textContent = "";
+    noticeRegion.hidden = true;
+  }
 }
 
 function renderInput() {
@@ -136,7 +151,6 @@ function renderList() {
   if (todos.length === 0) {
     listRegion.innerHTML = `
       <p class="empty-state">${emptyStateCopy(state.filter)}</p>
-      <p class="phase-note">Nothing is saved yet - refreshing loses your list. Persistence arrives in Phase 2.</p>
     `;
     return;
   }
@@ -243,9 +257,7 @@ function isActivationKey(key) {
 }
 
 function commitEdit(input) {
-  state = editTitle(state, input.dataset.todoId, input.value, { now: currentTimestamp() });
-  editingId = null;
-  render();
+  commitState(editTitle(state, input.dataset.todoId, input.value, { now: currentTimestamp() }));
 }
 
 function createTodoId() {

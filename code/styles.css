@@ -124,8 +124,7 @@ button:hover {
   padding: 0 0.75rem;
 }
 
-.empty-state,
-.phase-note {
+.empty-state {
   margin: 0;
   border: 1px dashed var(--border);
   border-radius: 6px;
@@ -133,9 +132,15 @@ button:hover {
   color: var(--muted);
 }
 
-.phase-note {
-  border-style: solid;
-  font-size: 0.95rem;
+#storage-notice {
+  margin: 0 0 1rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--muted);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 
 #todo-footer {
