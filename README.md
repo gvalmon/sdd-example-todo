@@ -21,15 +21,15 @@ To demonstrate the SDD inner loop end-to-end on a problem small enough to fit in
 
 ## Agent skills
 
-The reusable SDD workflows live in [`skills/`](./skills):
+The reusable SDD workflows live in [`.agents/skills/`](./.agents/skills):
 
 - `$sdd-implement` implements the next phase, an ad-hoc task, or a refactor pass from `spec/` and `plan/`.
 - `$sdd-canonize` promotes durable lessons from manual changes back into `spec/` and/or `plan/`.
 
-Discovery shims are checked in for both agent runtimes:
+Discovery shims are checked in for Claude:
 
-- Claude: `.claude/skills/*` symlinks point to `skills/*`.
-- Codex: `.agents/skills/*` symlinks point to `skills/*`, and each skill includes `agents/openai.yaml` metadata for Codex skill lists and chips.
+- Claude: `.claude/skills/*` symlinks point to `.agents/skills/*`.
+- Codex: `.agents/skills/*` contains the real skill files, including `agents/openai.yaml` metadata for Codex skill lists and chips.
 
 Codex detects skill changes automatically. If the skills do not appear, restart Codex.
 

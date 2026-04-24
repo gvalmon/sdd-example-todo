@@ -35,9 +35,9 @@ Every phase follows the same four-step habit:
 - Before starting a new phase, draft its `plan/phase-N-*.md` file. Every phase must end in a human-testable state: the phase's "Manual Testing" section is the acceptance checklist.
 - Specs use **EARS** notation for requirements and **Given/When/Then** for behaviors. See `spec/AGENTS.md` for the full format.
 
-## Codex Skills
+## Agent Skills
 
-The source skills live in `skills/`. Codex discovers them through `.agents/skills/` symlinks:
+The source skills live in `.agents/skills/`. Claude discovers the shared skills through `.claude/skills/` symlinks:
 
 - `$sdd-specify` - create or improve `spec/` from user input or existing code.
 - `$sdd-plan` - create or improve `plan/` phase files from specs, user input, or existing code.
