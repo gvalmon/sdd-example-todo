@@ -96,6 +96,11 @@ Responsibilities:
 - Run the relevant verification commands.
 - Update `plan/status.md` when completing a phase or recording durable architecture decisions.
 - Summarize changed files, tests run, and any residual risks.
+- Include a **Tooling friction** note at the end of the summary, reporting genuine pain points only:
+  - A tool that was slow or awkward enough to cost real time (not a one-off annoyance).
+  - A script, command, or helper that was missing and had to be worked around manually.
+  - A manual step that recurred enough to deserve automation.
+  If nothing material came up, write `Tooling friction: none.` Do not invent items.
 
 Commit after review, not before.
 
@@ -131,3 +136,17 @@ refactor: <description>
 ```
 
 If committing is not appropriate in the current environment, leave the working tree edited and report the exact files changed plus verification results.
+
+## Tooling Feedback To The User
+
+After the commit (or final report), relay the implementer's **Tooling friction** notes to the user — but filter first. Forward an item only if it would plausibly save time on the next phase:
+
+- A missing script or helper the implementer had to work around, and would need again.
+- A tool that was measurably slow or awkward compared with a known alternative.
+- A repeated manual step that could be captured as a script, hook, or command.
+
+Skip anything that was a one-off inconvenience, a minor preference, or speculative. If the hook at `.claude/hooks/tool-timing.sh` has produced timing data in `.claude/logs/tool-usage.jsonl`, consult it to validate claims about slow tools before forwarding them.
+
+If nothing passes the filter, do not mention tooling at all. An empty suggestion is worse than none — it trains the user to ignore the section.
+
+When a suggestion does pass, phrase it concretely: what tool or script, what it would replace, and roughly how much friction it would remove.
