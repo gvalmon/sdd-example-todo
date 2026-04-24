@@ -1,0 +1,24 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Node (if a phase later adopts tooling)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment
+.env
+.env.local
+
+# NOTE: code/ is tracked — it is the regeneratable build output, not a build cache.

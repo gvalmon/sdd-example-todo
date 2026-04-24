@@ -1,0 +1,105 @@
+# Logical operation contract for the TODO list.
+#
+# Owned by: spec/tracker/list-management.spec.md (SPEC-002-LIST-MANAGEMENT).
+# References the Todo schema from spec/tracker/todo-model.api.v1.yaml.
+#
+# Endpoints are described in OpenAPI shape for legibility, but the current
+# plan is frontend-only — the "API" is an in-process module boundary, not an
+# HTTP server. A future phase that introduces a backend consumes this file
+# unchanged.
+
+openapi: 3.0.3
+info:
+  title: Todo List Operations
+  version: "1.0.0"
+
+components:
+  schemas:
+    FilterMode:
+      type: string
+      enum: [all, active, completed]
+
+    ListState:
+      type: object
+      required: [todos, filter, active_count]
+      additionalProperties: false
+      properties:
+        todos:
+          type: array
+          items:
+            $ref: "todo-model.api.v1.yaml#/components/schemas/Todo"
+          description: In insertion order, oldest first.
+        filter:
+          $ref: "#/components/schemas/FilterMode"
+        active_count:
+          type: integer
+          minimum: 0
+          description: Count of todos where completed is false.
+
+paths:
+  /todos:
+    get:
+      summary: List todos (optionally filtered).
+      parameters:
+        - name: filter
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/FilterMode"
+      responses:
+        "200":
+          description: The visible list under the given filter.
+    post:
+      summary: Add a todo.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "todo-model.api.v1.yaml#/components/schemas/NewTodoRequest"
+      responses:
+        "201": { description: Created. }
+        "422": { description: Title empty after trim. }
+
+  /todos/{id}:
+    patch:
+      summary: Edit title or toggle completion.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "todo-model.api.v1.yaml#/components/schemas/TodoPatchRequest"
+      responses:
+        "200": { description: Updated. }
+        "404": { description: No such todo. }
+        "422": { description: Invalid field value. }
+    delete:
+      summary: Delete a todo.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "204": { description: Deleted. }
+        "404": { description: No such todo. }
+
+  /todos/completed:
+    delete:
+      summary: Clear all completed todos.
+      responses:
+        "204": { description: Completed todos removed. }
+
+  /todos/toggle-all:
+    post:
+      summary: Flip completion for every todo.
+      description: |
+        If any todo is open, mark all completed. Otherwise mark all open.
+      responses:
+        "200": { description: All todos toggled. }

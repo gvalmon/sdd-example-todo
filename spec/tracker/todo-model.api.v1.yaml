@@ -1,0 +1,72 @@
+# Logical resource contract for the Todo entity.
+#
+# Owned by: spec/tracker/todo-model.spec.md (SPEC-001-TODO-MODEL).
+# Stability: v1. Breaking changes move to todo-model.api.v2.yaml and a
+# plan/phase-*.md bridges the migration.
+#
+# There is no HTTP server in the current plan — these schemas describe the
+# in-memory / persisted shape consumed by the app logic and by the
+# persistence layer (SPEC-003-PERSISTENCE).
+
+openapi: 3.0.3
+info:
+  title: Todo Resource
+  version: "1.0.0"
+  description: |
+    The canonical shape of a Todo. Validation rules (non-empty trimmed title,
+    boolean completed, server-assigned id) live in the spec; this file fixes
+    the wire shape.
+
+components:
+  schemas:
+    Todo:
+      type: object
+      required: [id, title, completed, created_at, updated_at]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          minLength: 1
+          description: |
+            Stable identifier. Assigned once on create and never changes,
+            including across persistence migrations.
+        title:
+          type: string
+          minLength: 1
+          description: |
+            Human-readable task title. MUST be non-empty after trimming
+            leading/trailing whitespace.
+        completed:
+          type: boolean
+          description: |
+            True when the user has marked the task done. Toggles are
+            idempotent.
+        created_at:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp, set at creation.
+        updated_at:
+          type: string
+          format: date-time
+          description: |
+            ISO 8601 timestamp, updated on any field change. Equal to
+            created_at at creation.
+
+    NewTodoRequest:
+      type: object
+      required: [title]
+      additionalProperties: false
+      properties:
+        title:
+          type: string
+          minLength: 1
+
+    TodoPatchRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        title:
+          type: string
+          minLength: 1
+        completed:
+          type: boolean

@@ -1,0 +1,28 @@
+# Example sidecar — logical resource contract for the spec that owns it.
+#
+# The spec's "Data Definitions" section points here. This file is the
+# machine-readable source of truth for the resource's shape. Spec prose
+# references it; it never restates the field list.
+#
+# Breaking changes bump the filename to .v2.yaml. Compatible changes stay here.
+
+openapi: 3.0.3
+info:
+  title: Example Resource
+  version: "1.0.0"
+
+components:
+  schemas:
+    ExampleResource:
+      type: object
+      required: [id, created_at]
+      properties:
+        id:
+          type: string
+          description: Stable identifier. Assigned on create, never changes.
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
