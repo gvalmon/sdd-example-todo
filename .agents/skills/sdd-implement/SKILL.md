@@ -1,6 +1,6 @@
 ---
 name: sdd-implement
-description: Implement Spec-Driven Development (SDD) work from spec/ and plan/ files. Use when the user invokes $sdd-implement, asks to implement the next SDD phase, requests next-phase/adhoc/manual/refactor SDD work, or wants a sequential implementer and reviewer workflow.
+description: Implement features in plan/ using Spec-Driven Development approach. Use when the user invokes $sdd-implement, asks to implement the next SDD phase.
 ---
 
 # SDD Implement
@@ -50,66 +50,27 @@ Use this ordered checklist as the work prompt:
 5. Add missing tests for already-implemented behavior when the gap is material.
 6. Run the relevant tests again and report the result.
 
-## Sequential Agent Workflow
+## Delegation Pipeline
 
-Run the workflow in order: implementer first, reviewer second. 
-Two delegation paths exist — **orchestrated agent team** and **plain subagents**. 
-Do not perform the implementer and reviewer roles yourself; the separation is the point of this workflow.
+Run the work as a pipeline: implementer first, then code review and design review in parallel.
+Choose one execution path below: **orchestrated team** when team tools are available, otherwise **plain subagents**.
+Do not perform the implementer, reviewer, or designer roles yourself; the separation is the point.
 
 ### Preflight: choose the delegation path
 
 Before any editing or delegation, complete this check:
 
-1. Scan the harness's deferred-tool list for `TeamCreate` and `SendMessage`.
-2. If both are present, load their schemas via `ToolSearch` and use the **Orchestrated agent team** path.
-3. Otherwise, use the **Plain subagents** path.
-4. State the chosen path in one user-visible line before delegating: `Delegation path: orchestrated` or `Delegation path: plain subagents`.
+1. If `TeamCreate` and `SendMessage` are available, use the **Orchestrated team path**.
+2. Otherwise, use the **Plain subagents path**.
+3. State the chosen path in one user-visible line before delegating: `Delegation path: orchestrated` or `Delegation path: plain subagents`.
 
 Task size is never a reason to skip this check. A small task still goes through one of the two paths.
 
-### Orchestrated agent team
+### Roles
 
-Use when `TeamCreate` and `SendMessage` appear in the deferred-tool list.
+These role definitions are shared by both paths.
 
-1. Create the team with `TeamCreate`.
-2. Spawn two team agents with the `Agent` tool: an implementer and a reviewer. Pass `team_name` and a unique `name` so they are addressable.
-3. Create tasks for the work described in the work prompt and assign them to the implementer.
-4. Wait for the implementer to finish and summarize changes, verification, and risks.
-5. Hand the completed work to the reviewer via `SendMessage`.
-6. Relay reviewer findings back to the implementer via `SendMessage` when fixes are needed.
-7. Repeat the implementer -> reviewer loop until the reviewer approves or a blocker needs user input.
-8. Clean up the team with `TeamDelete` after the work is committed or explicitly paused.
-
-Example invocation skeleton (adjust names, types, and prompts to the task and current tool surface):
-
-```text
-TeamCreate({ name: "sdd-phase-N" })
-Agent({ team_name: "sdd-phase-N", name: "implementer",
-        subagent_type: "general-purpose",
-        description: "SDD implementer",
-        prompt: "<full work prompt: specs, plan file, acceptance checks>" })
-Agent({ team_name: "sdd-phase-N", name: "reviewer",
-        subagent_type: "general-purpose",
-        description: "SDD reviewer",
-        prompt: "You are the reviewer. Wait for handoff, then review against spec." })
-# after implementer returns its summary:
-SendMessage({ to: "reviewer",
-              message: "Review these changes: <changed files + implementer summary>" })
-# iterate via SendMessage until the reviewer approves, then:
-TeamDelete({ name: "sdd-phase-N" })
-```
-
-### Plain subagents
-
-Use when `TeamCreate` and `SendMessage` are not in the deferred-tool list.
-
-1. Create or invoke an implementer subagent with the prepared work prompt.
-2. Wait for the implementer to finish and summarize changes, verification, and risks.
-3. Create or invoke a reviewer subagent with the work prompt, changed files, and implementer summary.
-4. If the reviewer finds blocking issues, send the findings back to the implementer (or perform the fix locally), then ask the reviewer for another pass.
-5. Repeat until the reviewer approves or a blocker needs user input.
-
-### Agent 1: Implementer
+#### Agent 1: Implementer
 
 The implementer owns code and documentation edits for the task.
 
@@ -131,26 +92,61 @@ Responsibilities:
 
 Commit after review, not before.
 
-### Agent 2: Reviewer
+#### Agent 2: Reviewer
 
-The reviewer is read-only.
+The reviewer is read-only and acts as the code quality, maintainability, and architecture gate.
 
 Responsibilities:
 
-- Read the work prompt, changed files, relevant `plan/` files, and relevant `spec/` files.
-- Review for correctness against spec requirements, maintainability, missing tests, and unintended scope drift.
+- Read the work prompt, changed files, relevant `plan/` files, relevant `spec/` files, and `plan/status.md`.
+- Review code quality: clarity, naming, simplicity, local patterns, dead code, duplication, and brittle logic.
+- Review maintainability: ownership boundaries, coupling, testability, minimal scope, and ease of future change.
+- Review architecture: source-of-truth, data flow, module responsibilities, and consistency with `plan/status.md`.
+- Review correctness against spec requirements, missing tests, and unintended scope drift.
 - Confirm that plan/status updates accurately describe what shipped.
 - Provide findings ordered by severity, with file and line references where possible.
-- Approve only when the implementation is ready to commit.
+- Approve only when code quality, maintainability, architecture, tests, and spec correctness are acceptable.
 
-## Iteration
+#### Agent 3: Designer
 
-After the reviewer responds:
+The designer is read-only and acts as the visual consistency and screenshot-verification gate.
+Skip the designer for backend-only, CLI-only, documentation-only, or otherwise non-visual work.
 
-1. If there are blocking findings, the implementer fixes them.
-2. Run the relevant verification commands again.
-3. Ask the reviewer for another pass.
-4. Repeat until the reviewer approves or a blocker needs user input.
+Responsibilities:
+
+- Read the work prompt, relevant `spec/` files, relevant `plan/` files, changed UI files, and the implementer summary.
+- Launch the app however the project supports it — start the dev server (e.g. `pnpm dev`), use a Playwright/browser MCP tool, or build and serve the production bundle. Pick the lowest-friction option that actually renders the changed surface.
+- Drive it to the state the change affects: route, tool selection, canvas interaction, etc. For phases that ship UI but no interactions, the freshly loaded view is enough.
+- Capture a screenshot.
+- Compare the screenshot against the relevant `spec/` and `plan/` expectations: layout, palette, spacing, hierarchy, affordances, responsive fit, interaction state, and the phase's "Manual Testing" checklist.
+- Report the screenshot path and a short visual-consistency verdict. If the app cannot be launched in the current environment, say so explicitly and mark the review as **screenshot-blocked** rather than approving.
+- Provide findings ordered by severity, with screenshot paths and reproduction steps where useful.
+- Approve only when the visual result matches the expected product behavior and does not regress unchanged areas.
+
+Visual regressions in unchanged areas count as blocking findings.
+
+### Orchestrated Team Path
+
+Use when `TeamCreate` and `SendMessage` are available.
+
+1. Create a team (suggested name: `sdd-phase-N` or `sdd-adhoc-<short-slug>`).
+2. Spawn an implementer and a reviewer as team agents (see **Roles**). Also spawn a designer unless the work is backend-only, CLI-only, documentation-only, or otherwise non-visual.
+3. Use `TaskCreate` to break the work prompt into multiple discrete tasks — not just one task per role — and assign each task to the spawned agent that will own it. The implementer should typically own several tasks covering the pieces of the work; the reviewer owns code quality, maintainability, architecture, tests, and spec correctness; the designer owns visual consistency and screenshot verification.
+4. Hand the work prompt to the implementer.
+5. After the implementer reports, hand the changes to the reviewer and, when present, the designer in parallel via `SendMessage`.
+6. On blocking findings from either reviewer or designer, relay them to the implementer for fixes, then ask only the affected review role(s) for another pass.
+7. Repeat until the reviewer approves and the designer approves or was explicitly skipped, or a blocker needs user input.
+8. Tear the team down when the work is committed or explicitly paused.
+
+### Plain Subagents Path
+
+Use when `TeamCreate` and `SendMessage` are not available.
+
+1. Spawn an implementer subagent with the prepared work prompt (see **Roles**).
+2. After the implementer reports, spawn a reviewer subagent with the work prompt, changed files, and implementer summary.
+3. In parallel, spawn a designer subagent with the work prompt, changed files, and implementer summary unless the work is backend-only, CLI-only, documentation-only, or otherwise non-visual.
+4. On blocking findings from either reviewer or designer, send them back to the implementer (or fix locally), then run a new pass only for the affected review role(s).
+5. Repeat until the reviewer approves and the designer approves or was explicitly skipped, or a blocker needs user input.
 
 ## Commit
 
@@ -166,14 +162,12 @@ If committing is not appropriate in the current environment, leave the working t
 
 ## Tooling Feedback To The User
 
-After the commit (or final report), relay the implementer's **Tooling friction** notes to the user — but filter first. Forward an item only if it would plausibly save time on the next phase:
+After the commit, forward an item from the implementer's **Tooling friction** note only if it would plausibly save time on the next phase:
 
-- A missing script or helper the implementer had to work around, and would need again.
-- A tool that was measurably slow or awkward compared with a known alternative.
-- A repeated manual step that could be captured as a script, hook, or command.
+- a missing script or helper the implementer had to work around and would need again,
+- a tool measurably slower or more awkward than a known alternative,
+- a recurring manual step that could be captured as a script, hook, or command.
 
-Skip anything that was a one-off inconvenience, a minor preference, or speculative. If the hook at `.claude/hooks/tool-timing.sh` has produced timing data in `.claude/logs/tool-usage.jsonl`, consult it to validate claims about slow tools before forwarding them.
+Skip one-offs, minor preferences, and speculative items. If `.claude/logs/tool-usage.jsonl` has timing data (from `.claude/hooks/tool-timing.sh`), consult it before forwarding slow-tool claims.
 
-If nothing passes the filter, do not mention tooling at all. An empty suggestion is worse than none — it trains the user to ignore the section.
-
-When a suggestion does pass, phrase it concretely: what tool or script, what it would replace, and roughly how much friction it would remove.
+If nothing passes the filter, say nothing — empty suggestions train the user to ignore the section. When a suggestion passes, name the tool or script, what it would replace, and roughly how much friction it removes.

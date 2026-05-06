@@ -1,6 +1,6 @@
 ---
 name: sdd-specify
-description: Create or improve Spec-Driven Development (SDD) specs in spec/ from user input, product intent, or existing code in the repo root or code/. Use when the user invokes $sdd-specify, asks to draft specs, reverse-spec existing code, fill gaps in spec/, resolve open questions, find inconsistencies between specs and implementation, or prepare source-of-truth requirements before planning or implementation.
+description: Create or improve Spec-Driven Development (SDD) specs in spec/ from user input, product intent, or existing code in the repo root or code/. Use when the user invokes $sdd-specify, asks to draft specs, reverse-spec existing code, fill gaps in spec/, find inconsistencies between specs and implementation.
 ---
 
 # SDD Specify

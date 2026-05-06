@@ -1,13 +1,13 @@
 ---
 name: sdd-canonize
-description: Canonize lessons from manual implementation or documentation changes back into SDD spec/ and plan/ files. Use when the user invokes $sdd-canonize, asks to canonize ad-hoc fixes, or update SDD specs/plans from recent code changes.
+description: Canonize lessons from recent changes — manual edits, ad-hoc fixes, plan updates, or implementation work — back into SDD spec/ and plan/ files. Use when the user invokes $sdd-canonize, asks to canonize ad-hoc fixes, or update SDD specs/plans from recent changes.
 ---
 
 # SDD Canonize
 
-Analyze recent manual changes and promote durable product or implementation nuance back into `spec/` and/or `plan/`.
+Analyze recent changes — whatever has happened since the last canonize, regardless of whether they came from manual edits, ad-hoc fixes, plan updates, or implementation work — and promote durable product or implementation nuance back into `spec/` and/or `plan/`.
 
-Invocation input is optional. It may be a commit range, a single commit SHA, or a plain-English description of the changes to inspect. If no input is provided, analyze all `manual:` commits since the last non-`manual:` commit.
+Invocation input is optional. It may be a commit range, a single commit SHA, or a plain-English description of the changes to inspect. If no input is provided, analyze all commits since the last `canonize:` commit (plus any uncommitted working-tree changes).
 
 ## Philosophy
 
@@ -29,7 +29,7 @@ Determine which commits or working-tree changes to analyze:
 - If the input is a commit range, analyze that range.
 - If the input is a single commit SHA, analyze that commit.
 - If the input is descriptive text, inspect recent history and the working tree to find matching changes.
-- If no input is provided, find all `manual:` commits since the last non-`manual:` commit.
+- If no input is provided, find all commits since the last `canonize:` commit.
 
 Use `git log`, `git diff`, and `git show` as needed to understand the full change.
 
