@@ -1,40 +1,35 @@
 # Plan Directory
 
-The **implementation-specific** layer of the SDD workflow. `spec/` defines *what* the app does (stack-agnostic); `plan/` defines *how* to build it for the current stack, phase by phase.
+The **implementation-specific** layer of SDD. `spec/` defines *what* (stack-agnostic); `plan/` defines *how*, phase by phase.
 
-- **`status.md`** - Current project state, stack choice, architecture decisions. **Read first** for any implementation work.
-- **`phase-N-*.md`** - Phase files. Completed phases summarize what was shipped; the next phase carries detailed implementation notes.
-- **`_example_phase.md`** - Phase file template.
-
-Specs in `spec/` are the source of truth for product design. Phase files translate specs into concrete implementation, adding stack-specific architecture, temporary scaffolding, and incremental delivery.
+- **`status.md`** — current state, stack, architecture decisions, test tooling. **Read first.**
+- **`phase-N-*.md`** — phase files. Completed phases summarize what shipped; the next phase carries the detail.
+- **`_example_phase.md`** — template.
 
 ## Phase Shape
 
-Every phase must end in a **runnable, human-testable** state. The **Manual Testing (Success Path)** section is the checklist a human follows to verify the phase's capability end-to-end. Temporary scaffolding is fine; an unreachable or broken build is not.
+Every phase ends in a **runnable, human-testable** state. The **Manual Testing (Success Path)** section is the human acceptance checklist. Temporary scaffolding is fine; an unreachable build or a phase missing its E2E Tests and Manual Testing sections is not.
 
 ## Section Rules
 
-- **Deliverables** list implementation artifacts, not product behavior. Use `(see SPEC-NNN-SLUG)` or `(see SPEC-NNN-SLUG § Requirements)` to reference spec content instead of restating it.
-- **Integration Points** names concrete wiring: module imports, DOM element ids, event-handler names, storage keys, state-shape changes.
-- **Implementation Notes** carries code-level decisions and constants, rendering approach, temporary-scaffolding rationale, and patterns to follow.
-- **E2E Tests** and **Manual Testing** describe verification, not product design.
+- **Deliverables** — implementation responsibilities (modules, UI regions, data shapes). Name the *responsibility*, not the file path. Reference spec content with `(see SPEC-NNN-SLUG § Section)` instead of restating it.
+- **Integration Points** — concrete wiring: imports, DOM ids, event names, storage keys, state-shape changes. The right place for specific paths and identifiers.
+- **Implementation Notes** — code-level decisions, constants, rendering approach, scaffolding rationale, gotchas.
+- **E2E Tests** and **Manual Testing** — mandatory verification sections. Unit tests are governed globally (see § Testing Policy) and are not enumerated per phase.
+
+## Testing Policy
+
+Unit tests are an implicit, global obligation — phase plans do not list them.
+
+- **Full line and branch coverage** on every module not on the untestable-boundary allowlist. The implementer writes whatever specs are needed to satisfy the project's coverage gate (see `plan/status.md § Testing`).
+- **Pure logic must not hide behind the allowlist.** Math, state machines, reducers, serializers, hit-tests, debouncers, catalog loaders are unit-testable even when they live alongside a non-testable runtime (renderer, physics engine, audio, native bridge). Extract them so the boundary stays small.
+- **Untestable boundary allowlist** lives in the project's coverage config. Every entry carries an inline comment justifying the exclusion and naming the e2e spec that covers it. The implementer maintains it; the planner does not pre-list entries.
+- **E2E tests** cover the phase's spec scenarios plus a smoke spec proving the phase's primary capability is reachable. Each e2e names the spec section it verifies. Phase plans enumerate these in the **E2E Tests** section.
 
 ## Spec Vs Plan Boundary
 
-Phase files must not restate spec content. Use spec references instead.
-
-| Belongs in `spec/` | Belongs in `plan/` |
-|---|---|
-| User-visible behavior | Framework / runtime choice |
-| Data contracts | Storage mechanism |
-| Operations and their effects | Module boundaries, file layout, event wiring |
-| Invariants | Validation implementation |
-| Final-vision UX | Temporary scaffolding and placeholder UI |
-| Accessibility requirements | Concrete ARIA attributes and focus-management implementation |
-| Performance bar | How to meet it |
+Phase files reference spec content by ID; they do not restate it. Rule of thumb: `spec/` owns *what* (behavior, contracts, invariants, UX, accessibility, performance bar); `plan/` owns *how* (framework, storage, module boundaries, wiring, scaffolding, concrete attributes, performance tactics).
 
 ## Phase Numbering
 
-Flat: `phase-N-kebab-summary.md`, starting at `phase-1-*`. New phases get appended. A phase that gets skipped or merged is deleted; renumbering is allowed only when no phase has shipped yet.
-
-Status values inside a phase file: `Not started`, `In progress`, `Complete`. `plan/status.md` is the index across phases.
+Flat: `phase-N-kebab-summary.md`, starting at `phase-1-*`. New phases append. Renumbering is allowed only while no phase has shipped. Status values: `Not started`, `In progress`, `Complete`. `plan/status.md` is the cross-phase index.

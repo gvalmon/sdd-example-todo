@@ -15,18 +15,20 @@ Design pillars and hard constraints: `spec/_constitution.md` - read before propo
 
 ## Three Artifacts
 
-- **`spec/` is stable** - what the finished app must do. Changes are rare and deliberate. Never references a specific framework, runtime, or storage backend.
-- **`plan/` is iterative** - how we get there, phase by phase. May contain temporary scaffolding (hardcoded data, skipped features, placeholder UI) that the spec does not know about.
-- **`code/` is regeneratable** - could in principle be rebuilt from `spec/` + `plan/` at any time. Periodic delete-and-rebuild cycles are a feature, not a disaster.
+- **`spec/`** — what the finished app must do. Stable, engine-agnostic, source of truth. Never names a framework, runtime, or storage backend.
+- **`plan/`** — how we get there, phase by phase. Stack-specific, iterative, may contain temporary scaffolding the spec does not know about.
+- **`code/`** — the build output. Regeneratable from `spec/` + `plan/`; periodic delete-and-rebuild is a feature, not a disaster. Absent until Phase 1 produces it.
+
+Read first: `plan/status.md` (current phase, stack) and `spec/_constitution.md` (pillars and hard constraints).
 
 ## The Inner Loop
 
 Every phase follows the same four-step habit:
 
-1. **Implement** - the agent team picks up the next phase from `plan/` and ships end-to-end.
-2. **Review** - run the app. Find where reality diverged from the spec: rough UX, missed cases, things that don't work.
-3. **Ad-hoc fix** - patch `code/` directly. Fast, targeted, off-spec on purpose.
-4. **Canonize** - promote the fix from `code/` into `spec/`. The commit message carries the intent; the spec edit captures the durable rule. Skip this step and the same bug comes back with the next regeneration.
+1. **Implement** — pick up the next phase from `plan/` and ship end-to-end.
+2. **Review** — run the app, find where reality diverged from the spec.
+3. **Ad-hoc fix** — patch `code/` directly. Fast, targeted, off-spec on purpose.
+4. **Canonize** — promote the fix from `code/` into `spec/`. Skip this step and the same bug comes back with the next regeneration.
 
 ## Working In This Repo
 
