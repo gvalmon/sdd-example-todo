@@ -1,4 +1,4 @@
 interface:
   display_name: "SDD Specify"
-  short_description: "Create and improve SDD specs"
-  default_prompt: "Use $sdd-specify to create or improve SDD specs from user input or existing code."
+  short_description: "Bootstrap and improve SDD specs"
+  default_prompt: "Use $sdd-specify to draft initial specs or improve SDD specs from user input or existing code."
